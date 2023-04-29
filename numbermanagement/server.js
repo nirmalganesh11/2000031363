@@ -1,20 +1,24 @@
-var http = require('http');
 const express = require('express');
 const axios = require('axios');
+
 const app = express();
 
-const TIMEOUT_MS = 500;
-
 app.get('/numbers', async (req, res) => {
-  const urls = req.query.url;
+   const urls = req.query.url;
+   const numbers = [];
 
-  // Check if query parameter is provided
-  if (!urls) {
-    res.status(400).send({ error: 'Missing url parameter' });
-    return;
-  }
-http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('Hello World\n');
-}).listen(1337, '127.0.0.1');
-console.log('Server running at http://127.0.0.1:1337/')
+   for (const url of urls) {
+      try {
+         const response = await axios.get(url);
+         numbers.push(...response.data.numbers);
+      } catch (error) {
+         console.error(`Failed to fetch numbers from ${url}: ${error.message}`);
+      }
+   }
+
+   res.send({ numbers });
+});
+
+app.listen(8008, () => {
+   console.log('Server is running on port 8008');
+});
